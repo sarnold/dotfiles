@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 import sys
+from typing import Dict, List
 from datetime import timedelta
 
 from timewreport.parser import TimeWarriorParser
 
 parser = TimeWarriorParser(sys.stdin)
-totals = dict()
+
+totals: Dict[str, timedelta] = dict()
+job_totals: List[str] = []
 job_list = []
-job_totals = []
 
 
 def strf_delta(td):
     """
     String format a timedelta => (HH;MM:SS)
     """
-    h, r = divmod(int(td.total_seconds()), 60*60)
+    h, r = divmod(int(td.total_seconds()), 60 * 60)
     m, s = divmod(r, 60)
     h, m, s = (str(x).zfill(2) for x in (h, m, s))
     return f"{h}:{m}:{s}"
+
 
 def get_job_tags(tag):
     """
@@ -26,6 +29,7 @@ def get_job_tags(tag):
     job_tag = tag.split(',', maxsplit=1)
     if job_tag[0] not in job_list:
         job_list.append(job_tag[0])
+
 
 for interval in parser.get_intervals():
     tracked = interval.get_duration()
