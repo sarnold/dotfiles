@@ -1,0 +1,37 @@
+#!/bin/sh
+# This is ~/bin/do_chroot
+# It mounts the usb drive (sda) for chroot
+
+ROOT_MNT="/var/tmp/arm64-chroot"
+
+echo "mounting /dev/sda1 on ${ROOT_MNT} for chroot build"
+mount /dev/sda1 /var/tmp
+[[ -d ${ROOT_MNT} ]] || mkdir ${ROOT_MNT}
+
+echo "  mounting /proc and /dev..."
+mount --types proc /proc ${ROOT_MNT}/proc
+mount --rbind /sys ${ROOT_MNT}/sys
+mount --make-rslave ${ROOT_MNT}/sys
+mount --rbind /dev ${ROOT_MNT}/dev
+mount --make-rslave ${ROOT_MNT}/dev
+
+echo "  mounting nfs shares in portage tree..."
+mount ${ROOT_MNT}/var/cache/portage/packages
+mount ${ROOT_MNT}/var/cache/portage/distfiles
+mount ${ROOT_MNT}/usr/local/portage
+mount ${ROOT_MNT}/usr/local/arm
+
+cd ${ROOT_MNT}
+echo "chrooting into ${ROOT_MNT}..."
+chroot ${ROOT_MNT} /bin/bash
+echo "exiting chroot in ${ROOT_MNT}..."
+
+echo "  un-mounting all..."
+umount ${ROOT_MNT}/var/cache/portage/distfiles
+umount ${ROOT_MNT}/var/cache/portage/packages
+umount ${ROOT_MNT}/usr/local/portage
+umount ${ROOT_MNT}/usr/local/arm
+umount -l ${ROOT_MNT}/sys ${ROOT_MNT}/dev ${ROOT_MNT}/proc
+sleep 3
+cd
+#umount ${ROOT_MNT}
