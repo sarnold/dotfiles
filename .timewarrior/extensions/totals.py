@@ -8,7 +8,6 @@ from timewreport.parser import TimeWarriorParser
 parser = TimeWarriorParser(sys.stdin)
 
 totals: Dict[str, timedelta] = dict()
-job_totals: List[str] = []
 job_list = []
 
 
@@ -24,7 +23,7 @@ def strf_delta(td):
 
 def get_job_tags(tag):
     """
-    Extract job tags from full tag
+    Extract job tags from full tag string
     """
     job_tag = tag.split(',', maxsplit=1)
     if job_tag[0] not in job_list:
