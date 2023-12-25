@@ -11,7 +11,7 @@
 
 import sys
 from typing import Dict, List
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from timewreport.parser import TimeWarriorParser
 
@@ -21,6 +21,9 @@ totals: Dict[str, timedelta] = dict()
 job_totals: Dict[str, timedelta] = dict()
 job_tags = []
 
+grand_total = timedelta(0)
+oldest: datetime.date = None
+newest: datetime.date = None
 
 def strf_delta(td):
     '''
@@ -43,6 +46,15 @@ def get_job_tags(tag):
 
 for interval in parser.get_intervals():
     tracked = interval.get_duration()
+    startd = interval.get_start_date()
+    endd = interval.get_end_date() if not interval.is_open() else ''
+    if oldest is None:
+        oldest = startd
+        newest = endd
+    if startd < oldest:
+        oldest = startd
+    if endd > newest:
+        newest = endd
 
     for tag in interval.get_tags():
         if tag in totals:
@@ -66,15 +78,13 @@ for tag in totals:
         max_width = len(tag)
 
 # Compose report header.
-print('Total by Tag\n')
+print('Total by tag for {} to {}\n'.format(oldest, newest))
 
 # Compose table header.
 print('{:{width}} {:>10}'.format('Tag', 'Total', width=max_width))
 print('{} {}'.format('-' * max_width, '----------'))
 
 # Compose table rows.
-grand_total = timedelta(0)
-
 for tag in sorted(totals):
     formatted = totals[tag]
     grand_total += totals[tag]
