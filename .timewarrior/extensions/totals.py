@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''
+"""
     Modified from upstream example; extract a Job tag from the first
     comma-separated split of the full tag string and produce subtotals
     for each <jobname>
@@ -7,7 +7,7 @@
         ``$ timew start jobname,"factory reset patch"``
 
     then run ``timew totals today``
-'''
+"""
 
 import sys
 from typing import Dict, List
