@@ -27,7 +27,7 @@ newest: datetime.date = None
 
 def strf_delta(td):
     '''
-    String format a timedelta => (HH;MM:SS)
+    String format a timedelta => (HH:MM:SS)
     '''
     h, r = divmod(int(td.total_seconds()), 60 * 60)
     m, s = divmod(r, 60)
@@ -77,27 +77,31 @@ for tag in totals:
     if len(tag) > max_width:
         max_width = len(tag)
 
-# Compose report header.
-print('Total by tag for {} to {}\n'.format(oldest, newest))
+if newest is not None:
+    # Compose report header.
+    if oldest == newest:
+        print(f'Total by tag for {newest}\n')
+    else:
+        print(f'Total by tag for {oldest} to {newest}\n')
 
-# Compose table header.
-print('{:{width}} {:>10}'.format('Tag', 'Total', width=max_width))
-print('{} {}'.format('-' * max_width, '----------'))
+    # Compose table header.
+    print('{:{width}} {:>10}'.format('Tag', 'Total', width=max_width))
+    print('{} {}'.format('-' * max_width, '----------'))
 
-# Compose table rows.
-for tag in sorted(totals):
-    formatted = totals[tag]
-    grand_total += totals[tag]
-    print('{:{width}} {:10}'.format(tag, str(formatted), width=max_width))
+    # Compose table rows.
+    for tag in sorted(totals):
+        formatted = totals[tag]
+        grand_total += totals[tag]
+        print('{:{width}} {:10}'.format(tag, str(formatted), width=max_width))
 
-# Compose job subtotal header.
-print('{:{width}} {:10}'.format('\nJob', ' Total', width=max_width))
-print('{} {}'.format('-' * max_width, '----------'))
+    # Compose job subtotal header.
+    print('{:{width}} {:10}'.format('\nJob', ' Total', width=max_width))
+    print('{} {}'.format('-' * max_width, '----------'))
 
-for job in sorted(job_totals):
-    subtotals = job_totals[job]
-    print('{:{width}} {:10}'.format(job, strf_delta(subtotals), width=max_width))
+    for job in sorted(job_totals):
+        subtotals = job_totals[job]
+        print('{:{width}} {:10}'.format(job, strf_delta(subtotals), width=max_width))
 
-# Compose total.
-print('{} {}'.format(' ' * max_width, '----------'))
-print('{:{width}} {:10}'.format('Total', strf_delta(grand_total), width=max_width))
+    # Compose total.
+    print('{} {}'.format(' ' * max_width, '----------'))
+    print('{:{width}} {:10}'.format('Total', strf_delta(grand_total), width=max_width))
