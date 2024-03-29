@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""
+'''
     Modified from upstream example; extract a Job tag from the first
     comma-separated split of the full tag string and produce subtotals
-    for each <jobname>
+    for each <jobname> where <jobname> is a short mnemonic for customer
+    and/or task, for example::
 
-        ``$ timew start jobname,"factory reset patch"``
+        ``$ timew start sb3D-yocto,"factory reset patch"``
 
-    then run ``timew totals today``
-"""
+    using a more specific task string in quotes following a comma.
+    Then run ``timew totals march`` or some other time interval.
+'''
 
 import sys
 from typing import Dict, List
@@ -19,7 +21,7 @@ parser = TimeWarriorParser(sys.stdin)
 
 totals: Dict[str, timedelta] = dict()
 job_totals: Dict[str, timedelta] = dict()
-job_tags = []
+job_tags: List[str] = list()
 
 grand_total = timedelta(0)
 oldest: datetime.date = None
