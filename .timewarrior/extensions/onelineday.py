@@ -5,19 +5,19 @@
     for each <jobname> where <jobname> is a short mnemonic for customer
     and/or task, for example::
 
-        $ timew start sb3D-sw,"factory reset patch"
+        $ timew start xyz3D-sw,"factory reset patch"
 
     using a more specific task string in quotes following a comma.
     Then run ``timew oneline march`` or some other time interval.
 
     This report will output a oneline per day for each <jobname> format::
 
-        -- sb3D-cyber
+        -- xyz3D-cyber
         3/1 1.5h review security controls for yocto
         3/4 2.5h review security controls for yocto
         3/8 1h security meeting
 
-        -- sb3D-sw
+        -- xyz3D-sw
         3/7 2h look for PCIe example project that works with Quartus 23
         3/12 0.5h simple system diagram for internal use
 
@@ -36,22 +36,9 @@ from timewreport.parser import TimeWarriorParser
 parser = TimeWarriorParser(sys.stdin)
 
 totals: Dict[str, timedelta] = dict()
-job_totals: Dict[str, timedelta] = dict()
 job_days: List[str] = list()
 job_tags: List[str] = list()
-
 formatted = timedelta(0)
-grand_total = timedelta(0)
-
-
-def strf_delta(td):
-    '''
-    String format a timedelta => (HH:MM:SS)
-    '''
-    h, r = divmod(int(td.total_seconds()), 60 * 60)
-    m, s = divmod(r, 60)
-    h, m, s = (str(x).zfill(2) for x in (h, m, s))
-    return f"{h}:{m}:{s}"
 
 
 def update_job_tags(tag):
@@ -72,6 +59,7 @@ def update_job_days(interval):
         job_days.append(job_day)
 
 
+# need to load data for job days/tags before starting report processing
 for interval in parser.get_intervals():
     update_job_days(interval)
     for tag in interval.get_tags():
@@ -86,7 +74,6 @@ for job_tag in sorted(job_tags):
     print(f'-- {job_tag}')
     for job_day in sorted(job_days):
         job_intervals = [x for x in parser.get_intervals() if x.get_start_date() == job_day]
-        #print(f'{job_day} has {job_intervals}')
         for interval in job_intervals:
             tracked_hrs = interval.get_duration()
             tags = [x for x in interval.get_tags() if x.split(',', maxsplit=1)[0] == job_tag]
