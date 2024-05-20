@@ -1,0 +1,4 @@
+# ~/.screenrc
+hardstatus on
+backtick 1 5 5 conky -c /home/user/.conkyrc
+hardstatus alwayslastline "%=%1`"
