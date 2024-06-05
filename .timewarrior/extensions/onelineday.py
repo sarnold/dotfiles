@@ -36,9 +36,21 @@ from timewreport.parser import TimeWarriorParser
 parser = TimeWarriorParser(sys.stdin)
 
 totals: Dict[str, timedelta] = dict()
+job_totals: Dict[str, timedelta] = dict()
+
 job_days: List[str] = list()
 job_tags: List[str] = list()
 formatted = timedelta(0)
+
+
+def strf_delta(td):
+    '''
+    String format a timedelta => (HH:MM:SS)
+    '''
+    h, r = divmod(int(td.total_seconds()), 60 * 60)
+    m, s = divmod(r, 60)
+    h, m, s = (str(x).zfill(2) for x in (h, m, s))
+    return f"{h}:{m}:{s}"
 
 
 def update_job_tags(tag):
@@ -72,6 +84,7 @@ print('')
 
 for job_tag in sorted(job_tags):
     print(f'-- {job_tag}')
+    tracked_total = timedelta(hours=0)
     for job_day in sorted(job_days):
         job_intervals = [x for x in parser.get_intervals() if x.get_start_date() == job_day]
         for interval in job_intervals:
@@ -82,8 +95,11 @@ for job_tag in sorted(job_tags):
                     totals[tag] += tracked_hrs
                 else:
                     totals[tag] = tracked_hrs
+                tracked_total += tracked_hrs
 
         for tag in sorted(totals):
             print(f'{job_day} {totals[tag]} {tag}')
         totals.clear()
     print('')
+    print(f'Total hours for {job_tag}: {strf_delta(tracked_total)}\n')
+
