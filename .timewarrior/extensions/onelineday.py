@@ -36,7 +36,7 @@ from timewreport.parser import TimeWarriorParser
 parser = TimeWarriorParser(sys.stdin)
 
 totals: Dict[str, timedelta] = dict()
-job_totals: Dict[str, timedelta] = dict()
+final_total = timedelta(hours=0)
 
 job_days: List[str] = list()
 job_tags: List[str] = list()
@@ -101,5 +101,7 @@ for job_tag in sorted(job_tags):
             print(f'{job_day} {totals[tag]} {tag}')
         totals.clear()
     print('')
-    print(f'Total hours for {job_tag}: {strf_delta(tracked_total)}\n')
+    final_total += tracked_total
 
+    print(f'Total for {job_tag}: {strf_delta(tracked_total)} hrs\n')
+print(f'Final total for all jobs in duration: {strf_delta(final_total)} hrs\n\n')
